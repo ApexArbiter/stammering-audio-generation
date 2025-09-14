@@ -1,0 +1,525 @@
+[
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_0.wav",
+    "text": "Hello, how are you doing today?",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 27,
+    "speaker_name": "p252"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_1.wav",
+    "text": "Hello, how are you doing today?",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 27,
+    "speaker_name": "p252"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_0.wav",
+    "text": "Hello, how hmm, are um, you doing today?",
+    "type": "stammered",
+    "severity": 0.581,
+    "patterns": [
+      "filler"
+    ],
+    "augmentation": 0,
+    "speaker_id": 30,
+    "speaker_name": "p255"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_1.wav",
+    "text": "Hello, how hmm, are um, you doing today?",
+    "type": "stammered",
+    "severity": 0.581,
+    "patterns": [
+      "filler"
+    ],
+    "augmentation": 1,
+    "speaker_id": 30,
+    "speaker_name": "p255"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_2.wav",
+    "text": "Hello, how hmm, are um, you doing today?",
+    "type": "stammered",
+    "severity": 0.581,
+    "patterns": [
+      "filler"
+    ],
+    "augmentation": 2,
+    "speaker_id": 30,
+    "speaker_name": "p255"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_normal_aug_0.wav",
+    "text": "Hello, how are you doing today?",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 35,
+    "speaker_name": "p260"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_normal_aug_1.wav",
+    "text": "Hello, how are you doing today?",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 35,
+    "speaker_name": "p260"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_0.wav",
+    "text": "He-He-He-Hello, how are you doing today?",
+    "type": "stammered",
+    "severity": 0.581,
+    "patterns": [],
+    "augmentation": 0,
+    "speaker_id": 18,
+    "speaker_name": "p243"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_1.wav",
+    "text": "He-He-He-Hello, how are you doing today?",
+    "type": "stammered",
+    "severity": 0.581,
+    "patterns": [],
+    "augmentation": 1,
+    "speaker_id": 18,
+    "speaker_name": "p243"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_2.wav",
+    "text": "He-He-He-Hello, how are you doing today?",
+    "type": "stammered",
+    "severity": 0.581,
+    "patterns": [],
+    "augmentation": 2,
+    "speaker_id": 18,
+    "speaker_name": "p243"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_normal_aug_0.wav",
+    "text": "Hello, how are you doing today?",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 25,
+    "speaker_name": "p250"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_normal_aug_1.wav",
+    "text": "Hello, how are you doing today?",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 25,
+    "speaker_name": "p250"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_0.wav",
+    "text": "Heeeeello, h-h-h-how are-are-are yo-yo-yo-you do-do-do-doing t-t-t-today?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 0,
+    "speaker_id": 46,
+    "speaker_name": "p271"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_1.wav",
+    "text": "Heeeeello, h-h-h-how are-are-are yo-yo-yo-you do-do-do-doing t-t-t-today?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 1,
+    "speaker_id": 46,
+    "speaker_name": "p271"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_2.wav",
+    "text": "Heeeeello, h-h-h-how are-are-are yo-yo-yo-you do-do-do-doing t-t-t-today?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 2,
+    "speaker_id": 46,
+    "speaker_name": "p271"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_0.wav",
+    "text": "I would like to introduce myself to you.",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 12,
+    "speaker_name": "p237"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_1.wav",
+    "text": "I would like to introduce myself to you.",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 12,
+    "speaker_name": "p237"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_0.wav",
+    "text": "I wooouuuuld likeee-like-like to i-i-i-i-introduce my-my-myself to you.",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 0,
+    "speaker_id": 34,
+    "speaker_name": "p259"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_1.wav",
+    "text": "I wooouuuuld likeee-like-like to i-i-i-i-introduce my-my-myself to you.",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 1,
+    "speaker_id": 34,
+    "speaker_name": "p259"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_2.wav",
+    "text": "I wooouuuuld likeee-like-like to i-i-i-i-introduce my-my-myself to you.",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 2,
+    "speaker_id": 34,
+    "speaker_name": "p259"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_normal_aug_0.wav",
+    "text": "I would like to introduce myself to you.",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 15,
+    "speaker_name": "p240"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_normal_aug_1.wav",
+    "text": "I would like to introduce myself to you.",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 15,
+    "speaker_name": "p240"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_0.wav",
+    "text": "I w-w-w-w-would like to introduce myself to you.-you.-you.-you.",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition"
+    ],
+    "augmentation": 0,
+    "speaker_id": 27,
+    "speaker_name": "p252"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_1.wav",
+    "text": "I w-w-w-w-would like to introduce myself to you.-you.-you.-you.",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition"
+    ],
+    "augmentation": 1,
+    "speaker_id": 27,
+    "speaker_name": "p252"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_2.wav",
+    "text": "I w-w-w-w-would like to introduce myself to you.-you.-you.-you.",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition"
+    ],
+    "augmentation": 2,
+    "speaker_id": 27,
+    "speaker_name": "p252"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_normal_aug_0.wav",
+    "text": "I would like to introduce myself to you.",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 3,
+    "speaker_name": "p228"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_normal_aug_1.wav",
+    "text": "I would like to introduce myself to you.",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 3,
+    "speaker_name": "p228"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_0.wav",
+    "text": "I woooould likeeee to introduce myself to y-y-you.",
+    "type": "stammered",
+    "severity": 0.5,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 0,
+    "speaker_id": 25,
+    "speaker_name": "p250"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_1.wav",
+    "text": "I woooould likeeee to introduce myself to y-y-you.",
+    "type": "stammered",
+    "severity": 0.5,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 1,
+    "speaker_id": 25,
+    "speaker_name": "p250"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_2.wav",
+    "text": "I woooould likeeee to introduce myself to y-y-you.",
+    "type": "stammered",
+    "severity": 0.5,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "augmentation": 2,
+    "speaker_id": 25,
+    "speaker_name": "p250"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_0.wav",
+    "text": "Can you help me with this problem?",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 46,
+    "speaker_name": "p271"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_1.wav",
+    "text": "Can you help me with this problem?",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 46,
+    "speaker_name": "p271"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_0.wav",
+    "text": "Can-Can-Can-Can you help me with this problem?",
+    "type": "stammered",
+    "severity": 0.706,
+    "patterns": [
+      "filler"
+    ],
+    "augmentation": 0,
+    "speaker_id": 23,
+    "speaker_name": "p248"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_1.wav",
+    "text": "Can-Can-Can-Can you help me with this problem?",
+    "type": "stammered",
+    "severity": 0.706,
+    "patterns": [
+      "filler"
+    ],
+    "augmentation": 1,
+    "speaker_id": 23,
+    "speaker_name": "p248"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_2.wav",
+    "text": "Can-Can-Can-Can you help me with this problem?",
+    "type": "stammered",
+    "severity": 0.706,
+    "patterns": [
+      "filler"
+    ],
+    "augmentation": 2,
+    "speaker_id": 23,
+    "speaker_name": "p248"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_normal_aug_0.wav",
+    "text": "Can you help me with this problem?",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 36,
+    "speaker_name": "p261"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_normal_aug_1.wav",
+    "text": "Can you help me with this problem?",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 36,
+    "speaker_name": "p261"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_0.wav",
+    "text": "Ca-Ca-Can em, you h-h-help me hmm, with this problem?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "augmentation": 0,
+    "speaker_id": 40,
+    "speaker_name": "p265"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_1.wav",
+    "text": "Ca-Ca-Can em, you h-h-help me hmm, with this problem?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "augmentation": 1,
+    "speaker_id": 40,
+    "speaker_name": "p265"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_2_stammer_aug_2.wav",
+    "text": "Ca-Ca-Can em, you h-h-help me hmm, with this problem?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "augmentation": 2,
+    "speaker_id": 40,
+    "speaker_name": "p265"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_normal_aug_0.wav",
+    "text": "Can you help me with this problem?",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 20,
+    "speaker_name": "p245"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_normal_aug_1.wav",
+    "text": "Can you help me with this problem?",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 20,
+    "speaker_name": "p245"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_0.wav",
+    "text": "Can you h-h-h-help me with this-this-this-this problem?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "augmentation": 0,
+    "speaker_id": 28,
+    "speaker_name": "p253"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_1.wav",
+    "text": "Can you h-h-h-help me with this-this-this-this problem?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "augmentation": 1,
+    "speaker_id": 28,
+    "speaker_name": "p253"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_3_stammer_aug_2.wav",
+    "text": "Can you h-h-h-help me with this-this-this-this problem?",
+    "type": "stammered",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "augmentation": 2,
+    "speaker_id": 28,
+    "speaker_name": "p253"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_0.wav",
+    "text": "I'm trying to explain my thoughts clearly.",
+    "type": "normal",
+    "augmentation": 0,
+    "speaker_id": 21,
+    "speaker_name": "p246"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_normal_aug_1.wav",
+    "text": "I'm trying to explain my thoughts clearly.",
+    "type": "normal",
+    "augmentation": 1,
+    "speaker_id": 21,
+    "speaker_name": "p246"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_0.wav",
+    "text": "I'm trying to explain my thoughts cl-cl-cl-clearly.",
+    "type": "stammered",
+    "severity": 0.429,
+    "patterns": [],
+    "augmentation": 0,
+    "speaker_id": 49,
+    "speaker_name": "p274"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_1.wav",
+    "text": "I'm trying to explain my thoughts cl-cl-cl-clearly.",
+    "type": "stammered",
+    "severity": 0.429,
+    "patterns": [],
+    "augmentation": 1,
+    "speaker_id": 49,
+    "speaker_name": "p274"
+  },
+  {
+    "file": "synthetic_stammering_data\\augmented\\stammer_var_1_stammer_aug_2.wav",
+    "text": "I'm trying to explain my thoughts cl-cl-cl-clearly.",
+    "type": "stammered",
+    "severity": 0.429,
+    "patterns": [],
+    "augmentation": 2,
+    "speaker_id": 49,
+    "speaker_name": "p274"
+  }
+]

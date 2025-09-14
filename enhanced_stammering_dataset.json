@@ -1,0 +1,321 @@
+[
+  {
+    "id": "stammer_var_1",
+    "original": "Hello, how are you doing today?",
+    "stammered": "Hello, how hmm, are um, you doing today?",
+    "severity": 0.581,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 1
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "Hello, how are you doing today?",
+    "stammered": "He-He-He-Hello, how are you doing today?",
+    "severity": 0.581,
+    "patterns": [],
+    "sentence_id": 1
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "Hello, how are you doing today?",
+    "stammered": "Heeeeello, h-h-h-how are-are-are yo-yo-yo-you do-do-do-doing t-t-t-today?",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "sentence_id": 1
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "I would like to introduce myself to you.",
+    "stammered": "I wooouuuuld likeee-like-like to i-i-i-i-introduce my-my-myself to you.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "sentence_id": 2
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "I would like to introduce myself to you.",
+    "stammered": "I w-w-w-w-would like to introduce myself to you.-you.-you.-you.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition"
+    ],
+    "sentence_id": 2
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "I would like to introduce myself to you.",
+    "stammered": "I woooould likeeee to introduce myself to y-y-you.",
+    "severity": 0.5,
+    "patterns": [
+      "repetition",
+      "prolongation"
+    ],
+    "sentence_id": 2
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "Can you help me with this problem?",
+    "stammered": "Can-Can-Can-Can you help me with this problem?",
+    "severity": 0.706,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 3
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "Can you help me with this problem?",
+    "stammered": "Ca-Ca-Can em, you h-h-help me hmm, with this problem?",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "sentence_id": 3
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "Can you help me with this problem?",
+    "stammered": "Can you h-h-h-help me with this-this-this-this problem?",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "sentence_id": 3
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "I'm trying to explain my thoughts clearly.",
+    "stammered": "I'm trying to explain my thoughts cl-cl-cl-clearly.",
+    "severity": 0.429,
+    "patterns": [],
+    "sentence_id": 4
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "I'm trying to explain my thoughts clearly.",
+    "stammered": "I'm .... trying to explain my t-t-t-t-thoughts clearly.",
+    "severity": 0.619,
+    "patterns": [
+      "repetition",
+      "block"
+    ],
+    "sentence_id": 4
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "I'm trying to explain my thoughts clearly.",
+    "stammered": "I'-I'-I'-I'm t-t-t-trying to ex-ex-explain my hmm, th-th-thoughts cl-cl-clearly.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "sentence_id": 4
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "This is a very important presentation.",
+    "stammered": "This is a ve-ve-ve-very important presentation.",
+    "severity": 0.474,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 5
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "This is a very important presentation.",
+    "stammered": "This is a very ... important p-p-presentation.",
+    "severity": 0.421,
+    "patterns": [
+      "repetition",
+      "block",
+      "filler"
+    ],
+    "sentence_id": 5
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "This is a very important presentation.",
+    "stammered": "This is a veeery ah, ... impoooortant ... presentation.",
+    "severity": 0.895,
+    "patterns": [
+      "prolongation",
+      "block",
+      "filler"
+    ],
+    "sentence_id": 5
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "I want to tell you about my experiences.",
+    "stammered": "I w-w-w-waaant to tell-tell-tell-tell y-y-y-you ab-ab-ab-about my e-e-experiences.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "prolongation",
+      "filler"
+    ],
+    "sentence_id": 6
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "I want to tell you about my experiences.",
+    "stammered": "I want to tell you about my experiences.",
+    "severity": 0.0,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 6
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "I want to tell you about my experiences.",
+    "stammered": "I want to tell you about my experiences.",
+    "severity": 0.0,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 6
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "Please give me a moment to think.",
+    "stammered": "Please give hmm, me a moment to think.",
+    "severity": 0.303,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 7
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "Please give me a moment to think.",
+    "stammered": "Please gi-gi-gi-give me a moment-moment-moment to think.",
+    "severity": 1.0,
+    "patterns": [],
+    "sentence_id": 7
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "Please give me a moment to think.",
+    "stammered": "Please g-g-give me a m-m-m-m-moment to think.",
+    "severity": 0.727,
+    "patterns": [
+      "repetition"
+    ],
+    "sentence_id": 7
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "I believe we can solve this together.",
+    "stammered": "I believe we can s-s-s-solve this together.",
+    "severity": 0.324,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "sentence_id": 8
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "I believe we can solve this together.",
+    "stammered": "I be-be-believe we can solve this together.",
+    "severity": 0.324,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 8
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "I believe we can solve this together.",
+    "stammered": "I believe we em, ca-ca-ca-can em, solve t-t-t-t-this together.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "filler"
+    ],
+    "sentence_id": 8
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "Thank you for your patience and understanding.",
+    "stammered": "Thank yooooou for your patiiiience and understanding.",
+    "severity": 0.304,
+    "patterns": [
+      "prolongation",
+      "filler"
+    ],
+    "sentence_id": 9
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "Thank you for your patience and understanding.",
+    "stammered": "Thank uh, you for your em, patience and understanding.",
+    "severity": 0.348,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 9
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "Thank you for your patience and understanding.",
+    "stammered": "Thank you fo-fo-for your patience and understanding.-understanding.-understanding.",
+    "severity": 1.0,
+    "patterns": [
+      "filler"
+    ],
+    "sentence_id": 9
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "I'm working hard to improve my communication.",
+    "stammered": "i-i-I'm working-working-working-working h-h-hard to ...... improve my co-co-co-communication.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition",
+      "block"
+    ],
+    "sentence_id": 10
+  },
+  {
+    "id": "stammer_var_2",
+    "original": "I'm working hard to improve my communication.",
+    "stammered": "I'm working-working-working hard to im-im-im-improve my co-co-co-communication.",
+    "severity": 1.0,
+    "patterns": [],
+    "sentence_id": 10
+  },
+  {
+    "id": "stammer_var_3",
+    "original": "I'm working hard to improve my communication.",
+    "stammered": "I'm working hard-hard-hard-hard to improve my commuuuuunication.",
+    "severity": 0.844,
+    "patterns": [
+      "prolongation"
+    ],
+    "sentence_id": 10
+  },
+  {
+    "id": "stammer_var_1",
+    "original": "I'm working hard to improve my communication.",
+    "stammered": "I'm working-working-working-working-working hard to improve my communication.",
+    "severity": 1.0,
+    "patterns": [
+      "repetition"
+    ],
+    "sentence_id": 10
+  }
+]
