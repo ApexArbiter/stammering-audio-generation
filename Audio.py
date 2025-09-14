@@ -23,7 +23,7 @@ except ImportError:
 
 class ESPnetCMUArcticSynthesizer:
     """
-    ESPnet-based CMU Arctic synthesizer for stammering voice generation with multi-speaker support
+    ESPnet-based CMU Arctic synthesizer for stammering voice generation
     """
     
     def __init__(self, 
@@ -44,8 +44,6 @@ class ESPnetCMUArcticSynthesizer:
         self.model_tag = model_tag
         self.speaker_id = None  # Will be set during model setup
         self.available_speakers = []
-        self.spk2id = {}  # Speaker name to ID mapping
-        self.id2spk = {}  # ID to speaker name mapping
         self.setup_espnet_model(model_tag)
         
         # Augmentation parameters
@@ -76,112 +74,55 @@ class ESPnetCMUArcticSynthesizer:
             print(f"✅ ESPnet TTS model loaded successfully: {model_tag}")
             if self.available_speakers:
                 print(f"📢 Available speakers: {len(self.available_speakers)}")
-                print(f"🎤 Default speaker ID: {self.speaker_id}")
-                # Print some example speakers
-                example_speakers = list(self.spk2id.items())[:10]
-                print(f"📝 Example speakers: {example_speakers}")
+                print(f"🎤 Using speaker ID: {self.speaker_id}")
             
         except Exception as e:
             print(f"❌ Error loading ESPnet model: {e}")
             print("Falling back to simpler model...")
-            self.fallback_to_single_speaker()
-    
-    def fallback_to_single_speaker(self):
-        """Fallback to single speaker models if multi-speaker fails"""
-        try:
-            # Try a simpler single-speaker model
-            simple_models = [
-                "espnet/kan-bayashi_ljspeech_vits",
-                "espnet/kan-bayashi_ljspeech_tts_train_tacotron2_raw_phn_tacotron_g-truncated-50b003",
-                "espnet/kan-bayashi_ljspeech_tts_train_fastspeech_raw_phn_tacotron_g-truncated-50b003"
-            ]
             
-            for simple_model in simple_models:
-                try:
-                    print(f"🔄 Trying simpler model: {simple_model}")
-                    self.tts_model = Text2Speech.from_pretrained(simple_model)
-                    self.model_tag = simple_model
-                    self.check_speaker_info()
-                    print(f"✅ Successfully loaded: {simple_model}")
-                    break
-                except Exception as e2:
-                    print(f"❌ Failed to load {simple_model}: {e2}")
-                    continue
-            else:
-                raise Exception("All model loading attempts failed")
+            try:
+                # Try a simpler single-speaker model
+                simple_models = [
+                    "espnet/kan-bayashi_ljspeech_tts_train_tacotron2_raw_phn_tacotron_g-truncated-50b003",
+                    "espnet/kan-bayashi_ljspeech_tts_train_fastspeech_raw_phn_tacotron_g-truncated-50b003"
+                ]
                 
-        except Exception as e3:
-            print(f"❌ All model loading attempts failed: {e3}")
-            self.tts_model = None
+                for simple_model in simple_models:
+                    try:
+                        print(f"🔄 Trying simpler model: {simple_model}")
+                        self.tts_model = Text2Speech.from_pretrained(simple_model)
+                        self.model_tag = simple_model
+                        self.check_speaker_info()
+                        print(f"✅ Successfully loaded: {simple_model}")
+                        break
+                    except Exception as e2:
+                        print(f"❌ Failed to load {simple_model}: {e2}")
+                        continue
+                else:
+                    raise Exception("All model loading attempts failed")
+                
+            except Exception as e3:
+                print(f"❌ All model loading attempts failed: {e3}")
+                self.tts_model = None
     
     def check_speaker_info(self):
         """Check if the model supports multiple speakers and get speaker info"""
         try:
-            # Check for speaker-related attributes in the model
             if hasattr(self.tts_model, 'spk2id') and self.tts_model.spk2id is not None:
-                self.spk2id = self.tts_model.spk2id
-                self.id2spk = {v: k for k, v in self.spk2id.items()}
-                self.available_speakers = list(self.spk2id.keys())
+                self.available_speakers = list(self.tts_model.spk2id.keys())
                 # Use first available speaker as default
-                self.speaker_id = 0
+                self.speaker_id = 0 if self.available_speakers else None
                 print(f"🔍 Multi-speaker model detected with {len(self.available_speakers)} speakers")
-                print(f"🎭 Speaker mapping loaded: {len(self.spk2id)} speakers")
-                
-            elif hasattr(self.tts_model.tts.generator, 'spk2id') and self.tts_model.tts.generator.spk2id is not None:
-                # Sometimes the mapping is in the generator
-                self.spk2id = self.tts_model.tts.generator.spk2id
-                self.id2spk = {v: k for k, v in self.spk2id.items()}
-                self.available_speakers = list(self.spk2id.keys())
-                self.speaker_id = 0
-                print(f"🔍 Multi-speaker model detected (via generator) with {len(self.available_speakers)} speakers")
-                
             else:
-                # Try to detect from model config or other attributes
-                if hasattr(self.tts_model, 'tts') and hasattr(self.tts_model.tts, 'spk_embed_dim'):
-                    # Model supports speakers but mapping not available
-                    # Create dummy mapping for VCTK (common case)
-                    if 'vctk' in self.model_tag.lower():
-                        # VCTK has speakers p225, p226, ..., p376 (but not all are present)
-                        # Create a reasonable range
-                        vctk_speakers = [f"p{225 + i}" for i in range(50)]  # First 50 speakers
-                        self.spk2id = {spk: i for i, spk in enumerate(vctk_speakers)}
-                        self.id2spk = {i: spk for spk, i in self.spk2id.items()}
-                        self.available_speakers = vctk_speakers
-                        self.speaker_id = 0
-                        print(f"🔍 VCTK multi-speaker model detected, created speaker mapping for {len(vctk_speakers)} speakers")
-                    else:
-                        # Generic multi-speaker model
-                        num_speakers = min(getattr(self.tts_model.tts, 'spk_embed_dim', 100), 100)
-                        generic_speakers = [f"speaker_{i:03d}" for i in range(num_speakers)]
-                        self.spk2id = {spk: i for i, spk in enumerate(generic_speakers)}
-                        self.id2spk = {i: spk for spk, i in self.spk2id.items()}
-                        self.available_speakers = generic_speakers
-                        self.speaker_id = 0
-                        print(f"🔍 Generic multi-speaker model detected, created mapping for {num_speakers} speakers")
-                else:
-                    # Single speaker model
-                    self.available_speakers = []
-                    self.speaker_id = None
-                    self.spk2id = {}
-                    self.id2spk = {}
-                    print("🔍 Single-speaker model detected")
+                # Single speaker model
+                self.available_speakers = []
+                self.speaker_id = None
+                print("🔍 Single-speaker model detected")
                 
         except Exception as e:
             print(f"⚠️  Could not determine speaker info: {e}")
             self.available_speakers = []
             self.speaker_id = None
-            self.spk2id = {}
-            self.id2spk = {}
-    
-    def get_random_speaker_id(self) -> Optional[int]:
-        """Get a random speaker ID for variation"""
-        if self.available_speakers:
-            return random.randint(0, len(self.available_speakers) - 1)
-        return None
-    
-    def get_speaker_name(self, speaker_id: int) -> str:
-        """Get speaker name from ID"""
-        return self.id2spk.get(speaker_id, f"speaker_{speaker_id}")
     
     def synthesize_speech(self, text: str, output_path: str = None, speaker_id: Optional[int] = None) -> np.ndarray:
         """Synthesize speech from text using ESPnet with proper speaker handling"""
@@ -192,40 +133,17 @@ class ESPnetCMUArcticSynthesizer:
         try:
             # Clean text for TTS
             cleaned_text = self.clean_text_for_tts(text)
-            
-            # Determine speaker ID
-            if speaker_id is None:
-                if self.available_speakers:
-                    speaker_id = self.speaker_id  # Use default
-                else:
-                    speaker_id = None  # Single speaker model
-            
-            # Validate speaker ID
-            if self.available_speakers and speaker_id is not None:
-                speaker_id = max(0, min(speaker_id, len(self.available_speakers) - 1))
-                speaker_name = self.get_speaker_name(speaker_id)
-                print(f"🎵 Synthesizing: '{cleaned_text[:50]}...' with speaker {speaker_name} (ID: {speaker_id})")
-            else:
-                print(f"🎵 Synthesizing: '{cleaned_text[:50]}...' (single speaker)")
+            print(f"🎵 Synthesizing: '{cleaned_text[:50]}...'")
             
             # Prepare synthesis parameters
             synthesis_params = {"text": cleaned_text}
             
-            # Add speaker ID if required (this is the key fix!)
-            if self.available_speakers and speaker_id is not None:
-                # Different models may expect different parameter names
-                # Try the most common ones
-                if hasattr(self.tts_model, 'spk2id') or 'vits' in self.model_tag.lower():
-                    # VITS models typically use 'sids'
-                    synthesis_params["sids"] = torch.tensor([speaker_id], dtype=torch.long)
-                elif 'fastspeech' in self.model_tag.lower():
-                    # FastSpeech models might use 'spembs' or 'sids'
-                    synthesis_params["sids"] = torch.tensor([speaker_id], dtype=torch.long)
-                else:
-                    # Generic approach
-                    synthesis_params["sids"] = torch.tensor([speaker_id], dtype=torch.long)
-                
-                print(f"🎭 Using speaker tensor: {synthesis_params.get('sids', 'None')}")
+            # Add speaker ID if required
+            if self.available_speakers:
+                spk_id = speaker_id if speaker_id is not None else self.speaker_id
+                if spk_id is not None:
+                    synthesis_params["sids"] = torch.tensor([spk_id], dtype=torch.long)
+                    print(f"🎭 Using speaker ID: {spk_id}")
             
             # Generate speech
             with torch.no_grad():
@@ -248,8 +166,7 @@ class ESPnetCMUArcticSynthesizer:
             # Save if path provided
             if output_path:
                 sf.write(output_path, speech_audio, self.sample_rate)
-                speaker_info = f" (Speaker: {self.get_speaker_name(speaker_id)})" if speaker_id is not None else ""
-                print(f"💾 Saved: {output_path}{speaker_info}")
+                print(f"💾 Saved: {output_path}")
             
             return speech_audio
             
@@ -333,7 +250,7 @@ class ESPnetCMUArcticSynthesizer:
         
         return audio.astype(np.float32)
     
-    def synthesize_with_different_speakers(self, text: str, num_variations: int = 3) -> List[Tuple[np.ndarray, int]]:
+    def synthesize_with_different_speakers(self, text: str, num_variations: int = 3) -> List[np.ndarray]:
         """Synthesize with different speakers if available"""
         audios = []
         
@@ -341,15 +258,15 @@ class ESPnetCMUArcticSynthesizer:
             # Single speaker model - just generate multiple times with slight variations
             for i in range(num_variations):
                 audio = self.synthesize_speech(text)
-                audios.append((audio, None))
+                audios.append(audio)
         else:
             # Multi-speaker model - use different speakers
-            num_speakers_to_use = min(num_variations, len(self.available_speakers), 10)
-            speaker_ids = random.sample(range(len(self.available_speakers)), num_speakers_to_use)
+            speaker_ids = random.sample(range(min(len(self.available_speakers), 10)), 
+                                      min(num_variations, len(self.available_speakers)))
             
             for spk_id in speaker_ids:
                 audio = self.synthesize_speech(text, speaker_id=spk_id)
-                audios.append((audio, spk_id))
+                audios.append(audio)
         
         return audios
     
@@ -432,7 +349,7 @@ class ESPnetCMUArcticSynthesizer:
         return augmented_audios
     
     def process_stammering_dataset(self, dataset: List[Dict], max_samples: int = 50) -> Dict:
-        """Process the stammering dataset to create synthetic audio with multiple speakers"""
+        """Process the stammering dataset to create synthetic audio"""
         
         print(f"🎯 Processing {min(len(dataset), max_samples)} dataset entries...")
         
@@ -447,19 +364,15 @@ class ESPnetCMUArcticSynthesizer:
             print(f"\n📝 Processing {i+1}/{min(len(dataset), max_samples)}: {entry['id']}")
             
             try:
-                # Use different speakers for variety
-                normal_speaker_id = self.get_random_speaker_id()
-                stammer_speaker_id = self.get_random_speaker_id()
-                
                 # Generate normal speech
-                print(f"  🎤 Generating normal speech with speaker {normal_speaker_id}...")
+                print("  🎤 Generating normal speech...")
                 normal_path = self.output_dir / "raw_synthetic" / f"{entry['id']}_normal.wav"
-                normal_audio = self.synthesize_speech(entry['original'], str(normal_path), normal_speaker_id)
+                normal_audio = self.synthesize_speech(entry['original'], str(normal_path))
                 
                 # Generate stammered speech
-                print(f"  🗣️  Generating stammered speech with speaker {stammer_speaker_id}...")
+                print("  🗣️  Generating stammered speech...")
                 stammer_path = self.output_dir / "raw_synthetic" / f"{entry['id']}_stammer.wav"
-                stammer_audio = self.synthesize_speech(entry['stammered'], str(stammer_path), stammer_speaker_id)
+                stammer_audio = self.synthesize_speech(entry['stammered'], str(stammer_path))
                 
                 # Create augmented versions
                 print("  🔄 Creating augmented versions...")
@@ -478,8 +391,7 @@ class ESPnetCMUArcticSynthesizer:
                         'text': entry['original'],
                         'type': 'normal',
                         'augmentation': j,
-                        'speaker_id': normal_speaker_id,
-                        'speaker_name': self.get_speaker_name(normal_speaker_id) if normal_speaker_id is not None else None
+                        'speaker_id': self.speaker_id
                     })
                 
                 # Save augmented stammered audio
@@ -496,8 +408,7 @@ class ESPnetCMUArcticSynthesizer:
                         'severity': entry['severity'],
                         'patterns': entry['patterns'],
                         'augmentation': j,
-                        'speaker_id': stammer_speaker_id,
-                        'speaker_name': self.get_speaker_name(stammer_speaker_id) if stammer_speaker_id is not None else None
+                        'speaker_id': self.speaker_id
                     })
                 
                 print(f"  ✅ Entry {i+1} processed successfully")
@@ -511,32 +422,17 @@ class ESPnetCMUArcticSynthesizer:
         with open(metadata_path, 'w') as f:
             json.dump(processed_data['metadata'], f, indent=2)
         
-        # Save speaker info
-        if self.available_speakers:
-            speaker_info_path = self.output_dir / "speaker_info.json"
-            speaker_info = {
-                'model_tag': self.model_tag,
-                'total_speakers': len(self.available_speakers),
-                'spk2id': self.spk2id,
-                'id2spk': self.id2spk,
-                'available_speakers': self.available_speakers
-            }
-            with open(speaker_info_path, 'w') as f:
-                json.dump(speaker_info, f, indent=2)
-            print(f"  📋 Speaker info saved: {speaker_info_path}")
-        
         print(f"\n🎉 Processing complete!")
         print(f"  📊 Total audio files: {len(processed_data['audio_files'])}")
         print(f"  📈 Normal samples: {processed_data['labels'].count(0)}")
         print(f"  📉 Stammered samples: {processed_data['labels'].count(1)}")
-        print(f"  🎭 Speakers used: {len(self.available_speakers) if self.available_speakers else 1}")
         print(f"  💾 Metadata saved: {metadata_path}")
         
         return processed_data
 
 # Usage example
 if __name__ == "__main__":
-    print("🚀 ESPnet Multi-Speaker Synthetic Stammering Pipeline")
+    print("🚀 ESPnet CMU Arctic Synthetic Stammering Pipeline")
     print("=" * 60)
     
     # Load your stammering dataset
@@ -549,18 +445,19 @@ if __name__ == "__main__":
         print("Please run your stammering dataset generator first.")
         exit(1)
     
-    # Initialize synthesizer with multi-speaker model
-    print("\n🔧 Setting up Multi-Speaker ESPnet synthesizer...")
+    # Initialize synthesizer with a more reliable model
+    print("\n🔧 Setting up ESPnet synthesizer...")
     
-    # Recommended multi-speaker models in order of preference
-    multi_speaker_models = [
-        "espnet/kan-bayashi_vctk_tts_train_full_band_multi_spk_vits_raw_phn_tacotron_g-truncated-50b003",  # VCTK VITS
-        "espnet/espnet_male_en_vctk_vits",  # Alternative VCTK model
-        "espnet/espnet_female_en_vctk_vits"  # Female VCTK model
+    # Try different models in order of preference
+    models_to_try = [
+        "espnet/kan-bayashi_ljspeech_vits",  # Single speaker LJSpeech VITS
+        "espnet/english_male_ryanspeech_fastspeech2",  # Single speaker FastSpeech2
+        "espnet/iamanigeeit_ljspeech_tts_fastspeech2_mfa",  # Single speaker with MFA
+        "espnet/kan-bayashi_vctk_tts_train_full_band_multi_spk_vits_raw_phn_tacotron_g-truncated-50b003"  # Multi speaker (fallback)
     ]
     
     synthesizer = None
-    for model_tag in multi_speaker_models:
+    for model_tag in models_to_try:
         try:
             synthesizer = ESPnetCMUArcticSynthesizer(model_tag=model_tag)
             if synthesizer.tts_model is not None:
@@ -571,35 +468,26 @@ if __name__ == "__main__":
             continue
     
     if synthesizer is None or synthesizer.tts_model is None:
-        print("❌ Could not initialize any multi-speaker TTS model.")
-        print("Falling back to single speaker with multiple augmentations.")
+        print("❌ Could not initialize any TTS model. Continuing with fallback synthesis only.")
         synthesizer = ESPnetCMUArcticSynthesizer()
     
-    # Test synthesis with multiple speakers
-    print("\n🧪 Testing multi-speaker synthesis...")
-    test_text = "Hello, this is a test sentence."
-    test_stammer = "H-h-hello, this is a t-t-test sentence."
+    # Test synthesis with a simple example
+    print("\n🧪 Testing synthesis...")
+    test_text = "Hello, this is a test."
+    test_stammer = "H-h-hello, this is a t-t-test."
     
-    if synthesizer.available_speakers:
-        # Test with 3 different speakers
-        print("Testing with different speakers:")
-        for i in range(min(3, len(synthesizer.available_speakers))):
-            print(f"  🎭 Testing with speaker {i}: {synthesizer.get_speaker_name(i)}")
-            test_audio = synthesizer.synthesize_speech(test_text, speaker_id=i)
-            print(f"    Audio length: {len(test_audio)} samples")
-    else:
-        print("Single speaker model - testing basic synthesis:")
-        test_audio_normal = synthesizer.synthesize_speech(test_text)
-        test_audio_stammer = synthesizer.synthesize_speech(test_stammer)
-        print(f"  Normal audio length: {len(test_audio_normal)} samples")
-        print(f"  Stammer audio length: {len(test_audio_stammer)} samples")
+    test_audio_normal = synthesizer.synthesize_speech(test_text)
+    test_audio_stammer = synthesizer.synthesize_speech(test_stammer)
     
-    # Process dataset with multiple speakers
-    print("\n📊 Processing dataset with multi-speaker support...")
+    print(f"✅ Test synthesis complete")
+    print(f"  Normal audio length: {len(test_audio_normal)} samples")
+    print(f"  Stammer audio length: {len(test_audio_stammer)} samples")
+    
+    # Process dataset (start with small subset)
+    print("\n📊 Processing dataset...")
     processed_data = synthesizer.process_stammering_dataset(dataset, max_samples=10)
     
     print("\n🎯 Next steps:")
-    print("1. ✅ Multi-speaker synthetic audio generated")
+    print("1. ✅ Synthetic audio generated")
     print("2. 🔄 Ready for Wav2Vec 2.0 training")
     print("3. 📁 Check output folder:", synthesizer.output_dir)
-    print("4. 🎭 Multi-speaker diversity achieved for better generalization")
