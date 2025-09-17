@@ -1,0 +1,56 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+.eggs/
+*.pyo
+*.pyd
+
+# --- Virtual Environments ---
+venv/
+env/
+.venv/
+.env/
+espnet_env/
+
+# --- Jupyter / Notebooks ---
+.ipynb_checkpoints
+*.ipynb_save
+
+# --- Logs & Temp files ---
+*.log
+*.out
+*.err
+*.tmp
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Build / Packaging ---
+build/
+dist/
+*.manifest
+*.spec
+
+# --- ML / Training artifacts ---
+checkpoints/
+runs/
+outputs/
+experiments/
+*.ckpt
+*.pt
+*.pth
+*.onnx
+
+# --- Datasets (keep them local only) ---
+data/
+datasets/
+downloads/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace

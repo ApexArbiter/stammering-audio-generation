@@ -1,190 +1,479 @@
+#!/usr/bin/env python3
+"""
+Multi-Accent Synthetic Stammering Data Generator
+Generates synthetic stammering data using various TTS models with different accents
+Specifically designed for training stammering detection models with diverse accents
+"""
+
 import os
 import torch
+import torchaudio
+import librosa
+import numpy as np
 import soundfile as sf
-from espnet2.bin.tts_inference import Text2Speech
+import pandas as pd
 import random
+from pathlib import Path
+from transformers import pipeline, AutoTokenizer
+import warnings
+warnings.filterwarnings("ignore")
 
-# ---------- SETTINGS ----------
-NORMAL_SENTENCE = "Hello, my name is Mahad and I am working on speech synthesis."
-STAMMER_SENTENCE = "H-h-hello, m-my name is M-mahad and I... I am w-working on s-speech synthesis."
-OUTPUT_DIR = "tts_outputs"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-# ---------- CHOOSE MODEL ----------
-# Multi-speaker VCTK model (full path with proper model)
-model_tag = "espnet/kan-bayashi_vctk_tts_train_full_band_multi_spk_vits_raw_phn_tacotron_g-truncated-50b003"
-
-# Alternative models to try if the above fails
-fallback_models = [
-    "espnet/kan-bayashi_vctk_vits",  # Your current choice
-    "espnet/kan-bayashi_ljspeech_vits",  # Single speaker fallback
-]
-
-# ---------- LOAD MODEL ----------
-def load_model_safely(model_tags):
-    """Try to load models in order of preference"""
-    for model_tag in model_tags:
+class MultiAccentStammeringGenerator:
+    def __init__(self, output_dir="stammering_dataset"):
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(exist_ok=True)
+        
+        # Create subdirectories
+        (self.output_dir / "train" / "stammering").mkdir(parents=True, exist_ok=True)
+        (self.output_dir / "train" / "non_stammering").mkdir(parents=True, exist_ok=True)
+        (self.output_dir / "test" / "stammering").mkdir(parents=True, exist_ok=True)
+        (self.output_dir / "test" / "non_stammering").mkdir(parents=True, exist_ok=True)
+        
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.sample_rate = 16000
+        
+        # Initialize model containers
+        self.models = {}
+        self.datasets_info = []
+        
+        # Stammering patterns for different types
+        self.stammering_patterns = {
+            'repetition': [
+                'I-I-I want to go',
+                'Th-th-this is difficult',
+                'C-c-can you help me',
+                'W-w-what time is it',
+                'H-h-how are you doing',
+                'P-p-please wait for me'
+            ],
+            'prolongation': [
+                'Thiiiiis is a test',
+                'Pleeeeease help me',
+                'Whaaaat are you doing',
+                'Hoooow much does it cost',
+                'Wheeeeere is the station',
+                'Caaaaan you repeat that'
+            ],
+            'block': [
+                '...I want to speak',
+                '...This is hard',
+                '...Can you wait',
+                '...What should I do',
+                '...How do I get there',
+                '...Please understand me'
+            ]
+        }
+        
+        # Non-stammering sentences for comparison
+        self.normal_sentences = [
+            'I want to go to the store today.',
+            'This is a beautiful day outside.',
+            'Can you help me with this problem?',
+            'What time does the meeting start?',
+            'How are you feeling today?',
+            'Please wait for me at the station.',
+            'The weather is very nice today.',
+            'I need to finish my work soon.',
+            'Thank you for your help and support.',
+            'Where is the nearest coffee shop?'
+        ]
+        
+        # Accent configurations for different models
+        self.accent_configs = {
+            'parler_multilingual': [
+                ('indian_male', 'A middle-aged Indian man speaking with a clear Hindi accent'),
+                ('indian_female', 'A young Indian woman with a pleasant Mumbai accent'),
+                ('british_male', 'A British man from London with a clear accent'),
+                ('british_female', 'A young British woman with a refined accent'),
+                ('american_male', 'An American man from New York with a clear voice'),
+                ('american_female', 'A young American woman from California'),
+                ('australian_male', 'An Australian man with a distinctive Sydney accent'),
+                ('chinese_male', 'A Chinese man speaking English with a Beijing accent'),
+                ('japanese_female', 'A Japanese woman speaking English with a Tokyo accent'),
+                ('arabic_male', 'An Arabic man speaking English with a Middle Eastern accent'),
+                ('south_african_female', 'A South African woman with a Cape Town accent'),
+                ('scottish_male', 'A Scottish man from Edinburgh with a strong accent')
+            ],
+            'mms_languages': [
+                ('eng', 'English (General)'),
+                ('hin', 'Hindi (India)'),
+                ('ben', 'Bengali (India/Bangladesh)'),
+                ('ara', 'Arabic'),
+                ('cmn', 'Chinese (Mandarin)'),
+                ('jpn', 'Japanese'),
+                ('fra', 'French'),
+                ('deu', 'German'),
+                ('spa', 'Spanish'),
+                ('rus', 'Russian'),
+                ('por', 'Portuguese'),
+                ('ita', 'Italian')
+            ],
+            'indic_parler': [
+                ('hindi_male', 'A Hindi speaking man from Delhi'),
+                ('hindi_female', 'A young Hindi speaking woman from Mumbai'),
+                ('bengali_male', 'A Bengali man from Kolkata'),
+                ('tamil_male', 'A Tamil speaking man from Chennai'),
+                ('telugu_female', 'A Telugu speaking woman from Hyderabad'),
+                ('gujarati_male', 'A Gujarati man from Ahmedabad'),
+                ('punjabi_female', 'A Punjabi woman from Amritsar'),
+                ('marathi_male', 'A Marathi speaking man from Pune')
+            ]
+        }
+    
+    def setup_parler_multilingual(self):
+        """Setup Parler-TTS Multilingual model"""
         try:
-            print(f"🔄 Attempting to load: {model_tag}")
-            text2speech = Text2Speech.from_pretrained(model_tag)
-            print(f"✅ Successfully loaded: {model_tag}")
-            return text2speech, model_tag
+            from parler_tts import ParlerTTSForConditionalGeneration
+            
+            model_name = "parler-tts/parler-tts-mini-multilingual"
+            self.models['parler_multilingual'] = {
+                'model': ParlerTTSForConditionalGeneration.from_pretrained(model_name).to(self.device),
+                'tokenizer': AutoTokenizer.from_pretrained(model_name)
+            }
+            print("✅ Parler-TTS Multilingual model loaded")
+            return True
         except Exception as e:
-            print(f"❌ Failed to load {model_tag}: {e}")
-            continue
-    raise Exception("Could not load any model")
-
-# Try to load the best model first, then fallbacks
-all_models = [model_tag] + fallback_models
-text2speech, loaded_model = load_model_safely(all_models)
-
-# ---------- DETECT SPEAKERS ----------
-def get_speaker_info(model):
-    """Get speaker information with multiple detection methods"""
-    speakers = []
-    spk2id = {}
+            print(f"❌ Failed to load Parler Multilingual: {e}")
+            return False
     
-    # Method 1: Direct spk2id attribute
-    if hasattr(model, "spk2id") and model.spk2id is not None:
-        spk2id = model.spk2id
-        speakers = list(spk2id.items())
-        print(f"✅ Found speakers via model.spk2id: {len(speakers)} speakers")
+    def setup_mms_models(self):
+        """Setup Facebook MMS-TTS models for different languages"""
+        try:
+            self.models['mms'] = {}
+            
+            # Load a few key language models
+            key_languages = ['eng', 'hin', 'ara', 'cmn', 'jpn']
+            
+            for lang_code in key_languages:
+                try:
+                    model_name = f"facebook/mms-tts-{lang_code}"
+                    tts_pipeline = pipeline("text-to-speech", model=model_name, device=0 if torch.cuda.is_available() else -1)
+                    self.models['mms'][lang_code] = tts_pipeline
+                    print(f"✅ Loaded MMS-TTS for {lang_code}")
+                except Exception as e:
+                    print(f"⚠️  Failed to load MMS-TTS for {lang_code}: {e}")
+            
+            return len(self.models['mms']) > 0
+        except Exception as e:
+            print(f"❌ Failed to setup MMS models: {e}")
+            return False
+    
+    def setup_indic_parler(self):
+        """Setup Indic Parler-TTS model"""
+        try:
+            from parler_tts import ParlerTTSForConditionalGeneration
+            
+            model_name = "ai4bharat/indic-parler-tts"
+            self.models['indic_parler'] = {
+                'model': ParlerTTSForConditionalGeneration.from_pretrained(model_name).to(self.device),
+                'tokenizer': AutoTokenizer.from_pretrained(model_name)
+            }
+            print("✅ Indic Parler-TTS model loaded")
+            return True
+        except Exception as e:
+            print(f"⚠️  Indic Parler-TTS not available: {e}")
+            return False
+    
+    def generate_audio_parler(self, text, description, model_key='parler_multilingual'):
+        """Generate audio using Parler-TTS models"""
+        try:
+            model_info = self.models[model_key]
+            model = model_info['model']
+            tokenizer = model_info['tokenizer']
+            
+            input_ids = tokenizer(description, return_tensors="pt").input_ids.to(self.device)
+            prompt_input_ids = tokenizer(text, return_tensors="pt").input_ids.to(self.device)
+            
+            generation = model.generate(
+                input_ids=input_ids,
+                prompt_input_ids=prompt_input_ids,
+                do_sample=True,
+                temperature=0.8
+            )
+            
+            audio_arr = generation.cpu().numpy().squeeze()
+            return audio_arr, model.config.sampling_rate
+        except Exception as e:
+            print(f"Error generating audio with Parler: {e}")
+            return None, None
+    
+    def generate_audio_mms(self, text, lang_code):
+        """Generate audio using Facebook MMS-TTS"""
+        try:
+            if lang_code in self.models['mms']:
+                tts_pipeline = self.models['mms'][lang_code]
+                result = tts_pipeline(text)
+                
+                if hasattr(result, 'audio'):
+                    audio_data = result.audio.flatten()
+                    sample_rate = result.sampling_rate
+                else:
+                    audio_data = result['audio'].flatten()
+                    sample_rate = result['sampling_rate']
+                
+                return audio_data, sample_rate
+        except Exception as e:
+            print(f"Error generating audio with MMS {lang_code}: {e}")
+            return None, None
+    
+    def add_audio_variations(self, audio, sample_rate):
+        """Add variations to make synthetic data more realistic"""
+        variations = []
         
-    # Method 2: Check in the TTS generator
-    elif hasattr(model, 'tts') and hasattr(model.tts, 'generator'):
-        if hasattr(model.tts.generator, 'spk2id') and model.tts.generator.spk2id is not None:
-            spk2id = model.tts.generator.spk2id
-            speakers = list(spk2id.items())
-            print(f"✅ Found speakers via generator.spk2id: {len(speakers)} speakers")
-    
-    # Method 3: Check TTS model attributes
-    elif hasattr(model, 'tts') and hasattr(model.tts, 'spk_embed_dim'):
-        # Multi-speaker model but no explicit mapping
-        if 'vctk' in loaded_model.lower():
-            # Create VCTK speaker mapping
-            vctk_speakers = [f"p{225 + i}" for i in range(20)]  # First 20 VCTK speakers
-            spk2id = {spk: i for i, spk in enumerate(vctk_speakers)}
-            speakers = list(spk2id.items())
-            print(f"✅ Created VCTK speaker mapping: {len(speakers)} speakers")
-        else:
-            # Generic multi-speaker
-            num_speakers = min(10, getattr(model.tts, 'spk_embed_dim', 10))
-            generic_speakers = [f"speaker_{i:03d}" for i in range(num_speakers)]
-            spk2id = {spk: i for i, spk in enumerate(generic_speakers)}
-            speakers = list(spk2id.items())
-            print(f"✅ Created generic speaker mapping: {len(speakers)} speakers")
-    
-    # Method 4: Single speaker
-    else:
-        speakers = [(None, None)]
-        print("✅ Single speaker model detected")
-    
-    return speakers, spk2id
-
-speakers, spk2id = get_speaker_info(text2speech)
-
-print(f"\n📊 Model Info:")
-print(f"  Model: {loaded_model}")
-print(f"  Sample Rate: {text2speech.fs}")
-print(f"  Speakers: {len(speakers) if speakers[0][0] is not None else 1}")
-
-if len(speakers) > 1 and speakers[0][0] is not None:
-    print(f"  Example speakers: {speakers[:5]}")
-
-# ---------- GENERATE AUDIO ----------
-def synthesize_with_error_handling(model, text, speaker_id=None, speaker_name="default"):
-    """Synthesize audio with proper error handling"""
-    try:
-        # Prepare synthesis arguments
-        synthesis_kwargs = {"text": text}
+        # Original
+        variations.append(('original', audio))
         
-        # Add speaker ID if available
-        if speaker_id is not None:
-            # Convert to tensor with proper format
-            if isinstance(speaker_id, int):
-                speaker_tensor = torch.tensor([speaker_id], dtype=torch.long)
+        # Speed variation
+        if random.random() < 0.5:
+            speed_factor = random.uniform(0.8, 1.2)
+            fast_audio = librosa.effects.time_stretch(audio, rate=speed_factor)
+            variations.append(('speed_varied', fast_audio))
+        
+        # Pitch variation
+        if random.random() < 0.5:
+            n_steps = random.uniform(-2, 2)
+            pitch_audio = librosa.effects.pitch_shift(audio, sr=sample_rate, n_steps=n_steps)
+            variations.append(('pitch_varied', pitch_audio))
+        
+        # Add slight noise
+        if random.random() < 0.3:
+            noise_factor = 0.005
+            noise = np.random.normal(0, noise_factor, audio.shape)
+            noisy_audio = audio + noise
+            variations.append(('noise_added', noisy_audio))
+        
+        return variations
+    
+    def generate_stammering_dataset(self, num_samples_per_accent=20):
+        """Generate complete stammering dataset with multiple accents"""
+        print("🚀 Starting Multi-Accent Stammering Dataset Generation")
+        print("=" * 60)
+        
+        dataset_entries = []
+        file_counter = 0
+        
+        # Setup models
+        models_available = []
+        if self.setup_parler_multilingual():
+            models_available.append('parler_multilingual')
+        if self.setup_mms_models():
+            models_available.append('mms')
+        if self.setup_indic_parler():
+            models_available.append('indic_parler')
+        
+        if not models_available:
+            print("❌ No TTS models available. Please install required packages.")
+            return
+        
+        print(f"✅ Available models: {models_available}")
+        
+        # Generate stammering data
+        print(f"\n🎯 Generating stammering samples...")
+        for model_type in models_available:
+            if model_type == 'parler_multilingual':
+                configs = self.accent_configs['parler_multilingual']
+            elif model_type == 'mms':
+                configs = self.accent_configs['mms_languages']
+            else:  # indic_parler
+                configs = self.accent_configs['indic_parler']
+            
+            for accent_name, accent_desc in configs:
+                print(f"  Processing {accent_name}...")
+                
+                samples_generated = 0
+                for pattern_type, patterns in self.stammering_patterns.items():
+                    for pattern in patterns[:num_samples_per_accent//6]:  # Distribute across pattern types
+                        
+                        # Generate audio
+                        if model_type in ['parler_multilingual', 'indic_parler']:
+                            audio, sr = self.generate_audio_parler(pattern, accent_desc, model_type)
+                        else:  # mms
+                            audio, sr = self.generate_audio_mms(pattern, accent_name)
+                        
+                        if audio is not None:
+                            # Add variations
+                            variations = self.add_audio_variations(audio, sr)
+                            
+                            for var_name, var_audio in variations:
+                                # Determine train/test split (80/20)
+                                split = "train" if random.random() < 0.8 else "test"
+                                
+                                # Save file
+                                filename = f"stammering_{accent_name}_{pattern_type}_{file_counter:04d}_{var_name}.wav"
+                                filepath = self.output_dir / split / "stammering" / filename
+                                
+                                # Resample to target sample rate
+                                if sr != self.sample_rate:
+                                    var_audio = librosa.resample(var_audio, orig_sr=sr, target_sr=self.sample_rate)
+                                
+                                sf.write(filepath, var_audio, self.sample_rate)
+                                
+                                # Add to dataset
+                                dataset_entries.append({
+                                    'filename': str(filepath),
+                                    'label': 'stammering',
+                                    'split': split,
+                                    'accent': accent_name,
+                                    'model': model_type,
+                                    'pattern_type': pattern_type,
+                                    'variation': var_name,
+                                    'text': pattern
+                                })
+                                
+                                file_counter += 1
+                                samples_generated += 1
+                
+                print(f"    Generated {samples_generated} samples for {accent_name}")
+        
+        # Generate non-stammering data
+        print(f"\n🎯 Generating non-stammering samples...")
+        for model_type in models_available:
+            if model_type == 'parler_multilingual':
+                configs = self.accent_configs['parler_multilingual']
+            elif model_type == 'mms':
+                configs = self.accent_configs['mms_languages']
             else:
-                speaker_tensor = torch.tensor([int(speaker_id)], dtype=torch.long)
+                configs = self.accent_configs['indic_parler']
             
-            synthesis_kwargs["sids"] = speaker_tensor
-            print(f"  🎭 Using speaker '{speaker_name}' (ID: {speaker_id})")
-        else:
-            print(f"  🎤 Using single speaker")
-        
-        # Generate audio
-        with torch.no_grad():
-            output = model(**synthesis_kwargs)
-        
-        # Extract waveform
-        if isinstance(output, dict):
-            wav = output["wav"]
-        else:
-            wav = output
-        
-        # Convert to numpy if needed
-        if hasattr(wav, 'detach'):
-            wav = wav.detach().cpu().numpy()
-        elif hasattr(wav, 'numpy'):
-            wav = wav.numpy()
-        
-        return wav
-        
-    except Exception as e:
-        print(f"  ❌ Synthesis error: {e}")
-        # Try without speaker ID as fallback
-        if speaker_id is not None:
-            print(f"  🔄 Retrying without speaker ID...")
-            return synthesize_with_error_handling(model, text, None, "fallback")
-        return None
-
-# Test with limited number of speakers for debugging
-max_speakers_to_test = 3 if len(speakers) > 3 else len(speakers)
-selected_speakers = speakers[:max_speakers_to_test]
-
-print(f"\n🎵 Generating audio for {max_speakers_to_test} speakers...")
-
-for i, (spk_name, spk_id) in enumerate(selected_speakers):
-    speaker_name = spk_name if spk_name else "default"
-    print(f"\n🎭 Speaker {i+1}/{max_speakers_to_test}: {speaker_name}")
-
-    for version, sentence in [("normal", NORMAL_SENTENCE), ("stammer", STAMMER_SENTENCE)]:
-        print(f"  📝 Generating {version} speech...")
-        
-        # Synthesize audio
-        wav = synthesize_with_error_handling(text2speech, sentence, spk_id, speaker_name)
-        
-        if wav is not None:
-            # Save audio
-            out_path = os.path.join(OUTPUT_DIR, f"{speaker_name}_{version}.wav")
-            
-            try:
-                # Ensure proper audio format
-                if wav.ndim > 1:
-                    wav = wav.flatten()
+            for accent_name, accent_desc in configs:
+                print(f"  Processing {accent_name}...")
                 
-                # Normalize if needed
-                if wav.max() > 1.0 or wav.min() < -1.0:
-                    wav = wav / (max(abs(wav.max()), abs(wav.min())) + 1e-7)
+                samples_generated = 0
+                for sentence in self.normal_sentences[:num_samples_per_accent//2]:
+                    
+                    # Generate audio
+                    if model_type in ['parler_multilingual', 'indic_parler']:
+                        audio, sr = self.generate_audio_parler(sentence, accent_desc, model_type)
+                    else:
+                        audio, sr = self.generate_audio_mms(sentence, accent_name)
+                    
+                    if audio is not None:
+                        # Add variations (fewer for non-stammering)
+                        variations = self.add_audio_variations(audio, sr)
+                        
+                        for var_name, var_audio in variations[:2]:  # Limit variations
+                            split = "train" if random.random() < 0.8 else "test"
+                            
+                            filename = f"normal_{accent_name}_{file_counter:04d}_{var_name}.wav"
+                            filepath = self.output_dir / split / "non_stammering" / filename
+                            
+                            if sr != self.sample_rate:
+                                var_audio = librosa.resample(var_audio, orig_sr=sr, target_sr=self.sample_rate)
+                            
+                            sf.write(filepath, var_audio, self.sample_rate)
+                            
+                            dataset_entries.append({
+                                'filename': str(filepath),
+                                'label': 'non_stammering',
+                                'split': split,
+                                'accent': accent_name,
+                                'model': model_type,
+                                'pattern_type': 'normal',
+                                'variation': var_name,
+                                'text': sentence
+                            })
+                            
+                            file_counter += 1
+                            samples_generated += 1
                 
-                sf.write(out_path, wav, text2speech.fs, "PCM_16")
-                print(f"  ✅ Saved: {out_path} (length: {len(wav)} samples)")
-                
-            except Exception as e:
-                print(f"  ❌ Save error: {e}")
-        else:
-            print(f"  ❌ Could not generate audio for {speaker_name} {version}")
+                print(f"    Generated {samples_generated} normal samples for {accent_name}")
+        
+        # Save dataset metadata
+        df = pd.DataFrame(dataset_entries)
+        df.to_csv(self.output_dir / 'dataset_metadata.csv', index=False)
+        
+        # Create labels.csv for Wav2Vec2 training (from your roadmap)
+        labels_df = df[['filename', 'label', 'split']].copy()
+        labels_df.to_csv(self.output_dir / 'labels.csv', index=False)
+        
+        self.print_dataset_summary(df)
+    
+    def print_dataset_summary(self, df):
+        """Print comprehensive dataset summary"""
+        print("\n" + "="*60)
+        print("📊 DATASET GENERATION SUMMARY")
+        print("="*60)
+        
+        total_files = len(df)
+        train_files = len(df[df['split'] == 'train'])
+        test_files = len(df[df['split'] == 'test'])
+        
+        print(f"📁 Total files generated: {total_files}")
+        print(f"   📚 Training files: {train_files}")
+        print(f"   🧪 Test files: {test_files}")
+        
+        print(f"\n🎭 By Label:")
+        for label in df['label'].unique():
+            count = len(df[df['label'] == label])
+            print(f"   {label}: {count} files")
+        
+        print(f"\n🌍 By Accent:")
+        accent_counts = df['accent'].value_counts()
+        for accent, count in accent_counts.items():
+            print(f"   {accent}: {count} files")
+        
+        print(f"\n🤖 By Model:")
+        model_counts = df['model'].value_counts()
+        for model, count in model_counts.items():
+            print(f"   {model}: {count} files")
+        
+        print(f"\n📋 Files saved in: {self.output_dir.absolute()}")
+        print(f"   • Audio files organized in train/test folders")
+        print(f"   • Metadata: dataset_metadata.csv")
+        print(f"   • Labels for training: labels.csv")
+        
+        print(f"\n💡 Next Steps:")
+        print(f"   1. Review generated audio files")
+        print(f"   2. Run your Wav2Vec2 training script")
+        print(f"   3. Adjust num_samples_per_accent if needed")
+        print(f"   4. Add real stammering data if available")
 
-print(f"\n🎉 Audio generation complete!")
-print(f"📁 Check outputs in: {OUTPUT_DIR}")
-
-# ---------- VERIFY OUTPUTS ----------
-print(f"\n🔍 Verifying generated files:")
-for file in os.listdir(OUTPUT_DIR):
-    if file.endswith('.wav'):
-        file_path = os.path.join(OUTPUT_DIR, file)
+def main():
+    """Main function to run the multi-accent stammering generator"""
+    print("🌍 Multi-Accent Synthetic Stammering Data Generator")
+    print("=" * 60)
+    print("This script generates synthetic stammering data with various accents:")
+    print("  • Indian accents (Hindi, Bengali, Tamil, etc.)")
+    print("  • International accents (British, American, Australian, etc.)")
+    print("  • Asian accents (Chinese, Japanese)")
+    print("  • Middle Eastern accents (Arabic)")
+    print("=" * 60)
+    
+    # Check dependencies
+    print("\n🔍 Checking dependencies...")
+    required_packages = [
+        "torch", "torchaudio", "transformers", "librosa", 
+        "soundfile", "numpy", "pandas"
+    ]
+    
+    missing_packages = []
+    for package in required_packages:
         try:
-            audio, sr = sf.read(file_path)
-            duration = len(audio) / sr
-            print(f"  📄 {file}: {duration:.2f}s, {sr}Hz, {len(audio)} samples")
-        except Exception as e:
-            print(f"  ❌ Error reading {file}: {e}")
+            __import__(package)
+            print(f"  ✅ {package}")
+        except ImportError:
+            print(f"  ❌ {package} - MISSING")
+            missing_packages.append(package)
+    
+    if missing_packages:
+        print(f"\n⚠️  Install missing packages:")
+        print(f"pip install {' '.join(missing_packages)}")
+        print("\nAdditional TTS packages:")
+        print("pip install parler-tts")
+    
+    # Run generator
+    generator = MultiAccentStammeringGenerator()
+    
+    # Ask user for number of samples
+    try:
+        num_samples = int(input(f"\n🎯 How many samples per accent? (recommended: 15-25): ") or "20")
+    except:
+        num_samples = 20
+    
+    print(f"\n🚀 Starting generation with {num_samples} samples per accent...")
+    generator.generate_stammering_dataset(num_samples_per_accent=num_samples)
+    
+    print(f"\n✨ Generation complete! Dataset ready for Wav2Vec2 training.")
+
+if __name__ == "__main__":
+    main()
